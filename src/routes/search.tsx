@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { z } from "zod";
+import { SlidersHorizontal, X } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { PropertyCard, type Property } from "@/components/property-card";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,23 +13,34 @@ const searchSchema = z.object({
   minPrice: z.coerce.number().optional(),
   maxPrice: z.coerce.number().optional(),
   beds: z.coerce.number().optional(),
+  baths: z.coerce.number().optional(),
+  propertyType: z.string().optional(),
+  minSqft: z.coerce.number().optional(),
+  maxSqft: z.coerce.number().optional(),
+  minYear: z.coerce.number().optional(),
+  keywords: z.string().optional(),
 });
+
+type SearchParams = z.infer<typeof searchSchema>;
 
 export const Route = createFileRoute("/search")({
   validateSearch: (s) => searchSchema.parse(s),
   head: () => ({
     meta: [
       { title: "Search homes — Homely" },
-      { name: "description", content: "Search homes for sale and rent by city, price, and bedrooms." },
+      { name: "description", content: "Search homes for sale and rent by city, price, bedrooms, baths, home type, size, and more." },
     ],
   }),
   component: SearchPage,
 });
 
+const PROPERTY_TYPES = ["House", "Condo", "Townhouse", "Apartment", "Multi-family", "Land"];
+
 function SearchPage() {
   const search = Route.useSearch();
   const navigate = useNavigate();
   const [q, setQ] = useState(search.q ?? "");
+  const [showMore, setShowMore] = useState(false);
 
   useEffect(() => setQ(search.q ?? ""), [search.q]);
 
@@ -38,8 +50,14 @@ function SearchPage() {
       let query = supabase.from("properties").select("*").order("created_at", { ascending: false });
       if (search.listing) query = query.eq("listing_type", search.listing);
       if (search.beds) query = query.gte("beds", search.beds);
+      if (search.baths) query = query.gte("baths", search.baths);
+      if (search.propertyType) query = query.ilike("property_type", search.propertyType);
       if (search.minPrice) query = query.gte("price", search.minPrice);
       if (search.maxPrice) query = query.lte("price", search.maxPrice);
+      if (search.minSqft) query = query.gte("sqft", search.minSqft);
+      if (search.maxSqft) query = query.lte("sqft", search.maxSqft);
+      if (search.minYear) query = query.gte("year_built", search.minYear);
+      if (search.keywords) query = query.ilike("description", `%${search.keywords}%`);
       if (search.q) {
         const term = `%${search.q}%`;
         query = query.or(`city.ilike.${term},address.ilike.${term},state.ilike.${term},zip.ilike.${term}`);
@@ -60,9 +78,16 @@ function SearchPage() {
     },
   });
 
-  function update(patch: Partial<typeof search>) {
+  function update(patch: Partial<SearchParams>) {
     navigate({ to: "/search", search: { ...search, ...patch } });
   }
+
+  const activeMore =
+    (search.baths ? 1 : 0) +
+    (search.propertyType ? 1 : 0) +
+    (search.minSqft || search.maxSqft ? 1 : 0) +
+    (search.minYear ? 1 : 0) +
+    (search.keywords ? 1 : 0);
 
   return (
     <div className="min-h-screen">
@@ -118,6 +143,18 @@ function SearchPage() {
             placeholder="Max $"
             className="w-28 rounded-md border bg-background px-3 py-2 text-sm"
           />
+
+          <button
+            type="button"
+            onClick={() => setShowMore(true)}
+            className="inline-flex items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm font-medium hover:bg-accent"
+          >
+            <SlidersHorizontal className="h-4 w-4" />
+            More filters
+            {activeMore > 0 && (
+              <span className="rounded-full bg-[color:var(--brand)] px-2 py-0.5 text-xs text-white">{activeMore}</span>
+            )}
+          </button>
         </div>
       </div>
 
@@ -135,6 +172,157 @@ function SearchPage() {
           ))}
         </div>
       </div>
+
+      {showMore && (
+        <MoreFiltersPanel
+          search={search}
+          count={data?.length ?? 0}
+          onClose={() => setShowMore(false)}
+          onApply={(patch) => { update(patch); setShowMore(false); }}
+          onReset={() => {
+            navigate({ to: "/search", search: { q: search.q, listing: search.listing } });
+            setShowMore(false);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function MoreFiltersPanel({
+  search, count, onClose, onApply, onReset,
+}: {
+  search: SearchParams;
+  count: number;
+  onClose: () => void;
+  onApply: (patch: Partial<SearchParams>) => void;
+  onReset: () => void;
+}) {
+  const [baths, setBaths] = useState<number | undefined>(search.baths);
+  const [propertyType, setPropertyType] = useState<string | undefined>(search.propertyType);
+  const [minSqft, setMinSqft] = useState<number | undefined>(search.minSqft);
+  const [maxSqft, setMaxSqft] = useState<number | undefined>(search.maxSqft);
+  const [minYear, setMinYear] = useState<number | undefined>(search.minYear);
+  const [keywords, setKeywords] = useState<string>(search.keywords ?? "");
+
+  function apply() {
+    onApply({
+      baths, propertyType, minSqft, maxSqft, minYear,
+      keywords: keywords.trim() || undefined,
+    });
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-stretch justify-end bg-black/40" onClick={onClose}>
+      <div
+        className="flex h-full w-full max-w-md flex-col bg-background shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between border-b px-5 py-4">
+          <h2 className="text-lg font-semibold">More filters</h2>
+          <button onClick={onClose} aria-label="Close" className="rounded-full p-1 hover:bg-accent">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="flex-1 space-y-6 overflow-y-auto px-5 py-5">
+          <Section title="Bathrooms">
+            <div className="flex gap-2">
+              {[undefined, 1, 2, 3, 4].map((n) => (
+                <button
+                  key={String(n)}
+                  onClick={() => setBaths(n)}
+                  className={`flex-1 rounded-md border px-3 py-2 text-sm ${baths === n ? "border-[color:var(--brand)] bg-[color:var(--brand)]/10 font-medium" : "bg-background"}`}
+                >
+                  {n === undefined ? "Any" : `${n}+`}
+                </button>
+              ))}
+            </div>
+          </Section>
+
+          <Section title="Home type">
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => setPropertyType(undefined)}
+                className={`rounded-md border px-3 py-2 text-sm ${!propertyType ? "border-[color:var(--brand)] bg-[color:var(--brand)]/10 font-medium" : ""}`}
+              >
+                Any
+              </button>
+              {PROPERTY_TYPES.map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setPropertyType(t)}
+                  className={`rounded-md border px-3 py-2 text-sm ${propertyType?.toLowerCase() === t.toLowerCase() ? "border-[color:var(--brand)] bg-[color:var(--brand)]/10 font-medium" : ""}`}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+          </Section>
+
+          <Section title="Home size (sqft)">
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                placeholder="No min"
+                value={minSqft ?? ""}
+                onChange={(e) => setMinSqft(e.target.value ? Number(e.target.value) : undefined)}
+                className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+              />
+              <span className="text-muted-foreground">—</span>
+              <input
+                type="number"
+                placeholder="No max"
+                value={maxSqft ?? ""}
+                onChange={(e) => setMaxSqft(e.target.value ? Number(e.target.value) : undefined)}
+                className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+              />
+            </div>
+          </Section>
+
+          <Section title="Year built (min)">
+            <input
+              type="number"
+              placeholder="e.g. 1990"
+              value={minYear ?? ""}
+              onChange={(e) => setMinYear(e.target.value ? Number(e.target.value) : undefined)}
+              className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+            />
+          </Section>
+
+          <Section title="Keywords">
+            <input
+              type="text"
+              placeholder="pool, waterfront, hardwood…"
+              value={keywords}
+              onChange={(e) => setKeywords(e.target.value)}
+              className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+            />
+            <p className="mt-1 text-xs text-muted-foreground">Matches listing descriptions.</p>
+          </Section>
+        </div>
+
+        <div className="flex items-center justify-between gap-3 border-t px-5 py-4">
+          <button onClick={onReset} className="text-sm font-medium underline">
+            Reset all filters
+          </button>
+          <button
+            onClick={apply}
+            className="rounded-md bg-[color:var(--brand)] px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90"
+          >
+            See {count} home{count === 1 ? "" : "s"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <h3 className="mb-2 text-sm font-semibold">{title}</h3>
+      {children}
     </div>
   );
 }
