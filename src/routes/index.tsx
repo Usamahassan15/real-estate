@@ -128,9 +128,7 @@ function Home() {
         </div>
       </section>
 
-      <footer className="border-t py-8 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} Homely. A demo real estate marketplace.
-      </footer>
+      <SiteFooter />
     </div>
   );
 }
