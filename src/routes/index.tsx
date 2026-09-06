@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Search } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { PropertyCard, type Property } from "@/components/property-card";
+import { PropertyCardSkeleton } from "@/components/property-card-skeleton";
+import { SiteFooter } from "@/components/site-footer";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/")({
@@ -96,7 +98,9 @@ function Home() {
           </Link>
         </div>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {featured?.map((p) => <PropertyCard key={p.id} property={p} />)}
+          {featured
+            ? featured.map((p) => <PropertyCard key={p.id} property={p} />)
+            : Array.from({ length: 8 }).map((_, i) => <PropertyCardSkeleton key={i} />)}
         </div>
       </section>
 
@@ -124,9 +128,7 @@ function Home() {
         </div>
       </section>
 
-      <footer className="border-t py-8 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} Homely. A demo real estate marketplace.
-      </footer>
+      <SiteFooter />
     </div>
   );
 }
