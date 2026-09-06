@@ -96,7 +96,9 @@ function Home() {
           </Link>
         </div>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {featured?.map((p) => <PropertyCard key={p.id} property={p} />)}
+          {featured
+            ? featured.map((p) => <PropertyCard key={p.id} property={p} />)
+            : Array.from({ length: 8 }).map((_, i) => <PropertyCardSkeleton key={i} />)}
         </div>
       </section>
 
