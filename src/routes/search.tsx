@@ -169,11 +169,14 @@ function SearchPage() {
           <p className="text-muted-foreground">No listings match your filters. Try widening your search.</p>
         )}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {data?.map((p) => (
-            <PropertyCard key={p.id} property={p} isFavorite={favIds?.has(p.id)} />
-          ))}
+          {isLoading
+            ? Array.from({ length: 8 }).map((_, i) => <PropertyCardSkeleton key={i} />)
+            : data?.map((p) => (
+                <PropertyCard key={p.id} property={p} isFavorite={favIds?.has(p.id)} />
+              ))}
         </div>
       </div>
+      <SiteFooter />
 
       {showMore && (
         <MoreFiltersPanel
