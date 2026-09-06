@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Search } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { PropertyCard, type Property } from "@/components/property-card";
+import { PropertyCardSkeleton } from "@/components/property-card-skeleton";
+import { SiteFooter } from "@/components/site-footer";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/")({
