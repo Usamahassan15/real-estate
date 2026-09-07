@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { SiteHeader } from "@/components/site-header";
 import { PropertyCard, type Property } from "@/components/property-card";
+import { SiteFooter } from "@/components/site-footer";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/favorites")({
