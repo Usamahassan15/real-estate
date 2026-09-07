@@ -61,6 +61,7 @@ function FavoritesPage() {
           </>
         )}
       </div>
+      <SiteFooter />
     </div>
   );
 }
