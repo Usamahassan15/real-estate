@@ -8,6 +8,14 @@ import { formatPrice } from "@/lib/format";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/property/$id")({
+  head: () => ({
+    meta: [
+      { title: "Listing details — Homely" },
+      { name: "description", content: "See photos, price, bedrooms, bathrooms, size, and an estimated monthly payment for this home." },
+      { property: "og:title", content: "Listing details — Homely" },
+      { property: "og:description", content: "Photos, price, size, and estimated monthly payment for this home." },
+    ],
+  }),
   component: PropertyPage,
   notFoundComponent: () => (
     <div className="p-16 text-center">
