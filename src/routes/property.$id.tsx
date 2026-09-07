@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Bath, BedDouble, Calendar, Heart, MapPin, Ruler, Trees } from "lucide-react";
 import { useEffect, useState } from "react";
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice } from "@/lib/format";
 import { toast } from "sonner";
