@@ -3,10 +3,18 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { SiteHeader } from "@/components/site-header";
 import { PropertyCard, type Property } from "@/components/property-card";
+import { SiteFooter } from "@/components/site-footer";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/favorites")({
-  head: () => ({ meta: [{ title: "Saved homes — Homely" }] }),
+  head: () => ({
+    meta: [
+      { title: "Saved homes — Homely" },
+      { name: "description", content: "Your bookmarked homes for sale and rent, saved in one place on Homely." },
+      { property: "og:title", content: "Saved homes — Homely" },
+      { property: "og:description", content: "Your bookmarked homes for sale and rent on Homely." },
+    ],
+  }),
   component: FavoritesPage,
 });
 
@@ -61,6 +69,7 @@ function FavoritesPage() {
           </>
         )}
       </div>
+      <SiteFooter />
     </div>
   );
 }

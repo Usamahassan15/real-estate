@@ -3,11 +3,20 @@ import { useQuery } from "@tanstack/react-query";
 import { Bath, BedDouble, Calendar, Heart, MapPin, Ruler, Trees } from "lucide-react";
 import { useEffect, useState } from "react";
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice } from "@/lib/format";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/property/$id")({
+  head: () => ({
+    meta: [
+      { title: "Listing details — Homely" },
+      { name: "description", content: "See photos, price, bedrooms, bathrooms, size, and an estimated monthly payment for this home." },
+      { property: "og:title", content: "Listing details — Homely" },
+      { property: "og:description", content: "Photos, price, size, and estimated monthly payment for this home." },
+    ],
+  }),
   component: PropertyPage,
   notFoundComponent: () => (
     <div className="p-16 text-center">
@@ -144,6 +153,7 @@ function PropertyPage() {
           </aside>
         </div>
       </div>
+      <SiteFooter />
     </div>
   );
 }
