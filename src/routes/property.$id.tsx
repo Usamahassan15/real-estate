@@ -152,6 +152,7 @@ function PropertyPage() {
           </aside>
         </div>
       </div>
+      <SiteFooter />
     </div>
   );
 }
