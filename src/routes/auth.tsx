@@ -5,7 +5,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
-  head: () => ({ meta: [{ title: "Sign in — Homely" }] }),
+  head: () => ({
+    meta: [
+      { title: "Sign in or create an account — Homely" },
+      { name: "description", content: "Sign in to Homely to save homes you love and pick up your search where you left off." },
+      { property: "og:title", content: "Sign in — Homely" },
+      { property: "og:description", content: "Save homes you love and continue your search on Homely." },
+    ],
+  }),
   component: AuthPage,
 });
 
