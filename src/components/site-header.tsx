@@ -1,11 +1,12 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Heart, Home, LogOut, Search, User } from "lucide-react";
+import { Heart, Home, LogOut, Search, Shield, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Session } from "@supabase/supabase-js";
 
 export function SiteHeader() {
   const [session, setSession] = useState<Session | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -13,6 +14,18 @@ export function SiteHeader() {
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
     return () => sub.subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    const uid = session?.user?.id;
+    if (!uid) {
+      setIsAdmin(false);
+      return;
+    }
+    supabase
+      .rpc("has_role", { _user_id: uid, _role: "admin" })
+      .then(({ data }) => setIsAdmin(data === true));
+  }, [session?.user?.id]);
+
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
@@ -52,7 +65,17 @@ export function SiteHeader() {
             <Heart className="h-4 w-4" />
             <span className="hidden sm:inline">Saved</span>
           </Link>
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className="inline-flex items-center gap-1 rounded-md p-2 text-sm hover:bg-accent"
+            >
+              <Shield className="h-4 w-4" />
+              <span className="hidden sm:inline">Admin</span>
+            </Link>
+          )}
           {session ? (
+
             <button
               onClick={async () => {
                 await supabase.auth.signOut();
