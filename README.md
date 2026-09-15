@@ -1,26 +1,101 @@
-# Real Estate
+# Real Estate Platform
 
-https://www.zillow.com/ clone this exact website
+A modern, full-stack real estate web application inspired by leading property listing platforms. The platform allows users to discover, search, filter, and view properties with a responsive and user-friendly interface.
 
-generate backend also . make everything workable.
+## Features
 
-This project was built with [Lovable](https://lovable.dev).
+* Property listings
+* Property search
+* Advanced filtering
+* Property details
+* Location-based property browsing
+* User authentication
+* User profiles
+* Property management
+* Responsive design
+* REST API backend
+* Database integration
+* Secure backend architecture
 
-## Build with Lovable
+## Tech Stack
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/013f50e9-67b0-451b-a14a-602ba79ce849).
+### Frontend
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+* TypeScript
+* React
+* Next.js
+* Tailwind CSS
 
-## Development
+### Backend
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+* Python
+* FastAPI
+* REST APIs
 
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+### Database
+
+* PostgreSQL
+
+### Development & Deployment
+
+* Git
+* GitHub
+* Docker
+
+## Project Structure
+
+```text
+real-estate/
+├── frontend/
+├── backend/
+├── database/
+└── README.md
+```
+
+## Getting Started
+
+### Prerequisites
+
+* Node.js
+* npm
+* Python 3.11+
+* PostgreSQL
+* Docker (optional)
+
+### Frontend
+
+```bash
+cd frontend
+npm install
 npm run dev
 ```
+
+### Backend
+
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+```
+
+The application will be available locally after starting both the frontend and backend services.
+
+## Backend API
+
+The backend is built with **Python and FastAPI** and provides REST APIs for application functionality, including authentication, users, properties, search, and property management.
+
+## Developer
+
+**Muhammad Usama Hassan**
+
+* Python
+* FastAPI
+* TypeScript
+* React
+* Next.js
+* PostgreSQL
+* Docker
+
+## License
+
+This project is intended for educational and portfolio purposes.
